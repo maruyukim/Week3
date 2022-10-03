@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Week3</string>
+    <string name="spin_message">Spin Drapeau</string>
+    <string name="button1">bouton</string>
+    <string name="button2">bouton</string>
+    <string name="button3">bouton</string>
+</resources>
