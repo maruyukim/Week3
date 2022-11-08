@@ -2,6 +2,8 @@ package com.example.week3;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,37 +14,31 @@ import android.widget.TextView;
  * @since October 31, 2022
  */
 
-public class MainActivity extends AppCompatActivity {
 
-    /** This holds the login button reference */
+import androidx.appcompat.app.AppCompatActivity;
 
-    protected Button lButton;
-    /** This holds the editText reference for login */
-    protected EditText loginText;
+import android.os.Bundle;
+import androidx.annotation.Nullable;
 
+
+import com.example.week3.databinding.ActivityMainBinding;
+
+public class MainActivity extends Activity {
+    ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        lButton = findViewById(R.id.button1);
-        loginText = findViewById(R.id.editText);
+        binding = ActivityMainBinding.inflate( getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        TextView tv = findViewById(R.id.theText);
+        binding.loginButton.setOnClickListener( click -> {
+            Intent nextPage = new Intent( MainActivity.this, SecondActivity.class );
 
-        lButton.setOnClickListener(click ->
-                tv.setText("You click the button"));
+            nextPage.putExtra("EmailAddress", binding.editTextEmailAddress.getText().toString());
 
-        stringHas123(loginText.getText().toString());
+            startActivity(nextPage);
+        });
 
-    }
-
-    /**This function checkes if s has the string "123" somewhere int it
-     *
-     * @param s Is the string that we are checking for "123"
-     * @return Returns true if s has "123", false otherwise
-     */
-    public boolean stringHas123(String s){
-        return s.contains("123");
     }
 }
