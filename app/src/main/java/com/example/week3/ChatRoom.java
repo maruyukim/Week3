@@ -3,6 +3,8 @@ package com.example.week3;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.week3.databinding.ActivityChatRoomBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -65,22 +68,35 @@ public class ChatRoom extends AppCompatActivity {
             });
 
         }
+        chatModel.selectedMessage.observe(this, (newMessageValue) -> {
+
+            MessageDetailsFragment  chatFragment = new MessageDetailsFragment( newMessageValue );
+            FragmentManager fMgr = getSupportFragmentManager();
+            FragmentTransaction tx = fMgr.beginTransaction();
+            tx.add(R.id.fragmentLocation,chatFragment);
+            tx.addToBackStack("Back to previous activity");
+            tx.commit();//This line actually loads the fragment into the specified FrameLayout
+
+            //build pattern
+            /*
+               getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragmentLocation,chatFragment)
+                    .commit();
+             */
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentLocation, chatFragment)
+                    .commit();
+
+
+
+
+        });
 
         //set a layout manager for the rows to be aligned vertically using only 1 column
         binding.recycleView.setLayoutManager( new LinearLayoutManager(this));
-
-        if(allMessages == null) {
-            chatModel.messages.setValue(allMessages = new ArrayList<>());
-            Executor thread = Executors.newSingleThreadExecutor();
-            thread.execute(() -> {
-                //Once you get the data from database
-                runOnUiThread(() -> {
-                    allMessages.addAll(mDAO.getAllMessages());
-                    binding.recycleView.setAdapter(myAdapter); //You can then load the RecyclerView
-                });
-
-            });
-        }
 
         //SendButton: add the message typed in the edittext and time to the allMessages
         binding.sendButton.setOnClickListener( click -> {
@@ -183,63 +199,39 @@ public class ChatRoom extends AppCompatActivity {
             timeText = itemView.findViewById(R.id.time);
 
             itemView.setOnClickListener( click ->{
+
                 //which row was click
                 int position = getAbsoluteAdapterPosition();
-                ChatMessage thisMessage = allMessages.get(position);
-                int id = thisMessage.id;
+                ChatMessage selected = allMessages.get(position);
+                chatModel.selectedMessage.postValue( selected );
 
-                AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this);
 
-                //  method1 without build pattern
-//              builder.setMessage(messageText.getText());
-//              builder.setTitle("Do you want to delete this message?");
-//              builder..setNegativeButton("No", (dialog, cl) ->{ });
-//              builder..setPositiveButton("Yes", (dialog, cl) ->{
-//                            Snackbar.make(messageText,"You deleted position #" + position,
-//                                    Snackbar.LENGTH_LONG).setAction("Undo",clk->{
-//                                        Executor thread = Executors.newSingleThreadExecutor();
-//                                thread.execute(()->{
-//                                    mDAO.insertMessage(thisMessage);
-//                                });
-//                                chatModel.messages.getValue().add(position,thisMessage);
-//                                myAdapter.notifyItemInserted(position);
-//                            }).show();
-
-//                            Executor thread = Executors.newSingleThreadExecutor();
-//                            thread.execute( () ->{
-//                                mDAO.deleteMessage(thisMessage);
-//                            });
-//                            myAdapter.notifyItemRemoved(position);
-//                            chatModel.messages.getValue().remove(position);
-//                        })
-//              builder.create().show();
-
-                // method2 with build pattern
+                /* AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this);
+                // method with build pattern
                 builder.setMessage(messageText.getText())
                         .setTitle("Do you want to delete this message?")
                         .setNegativeButton("No", (dialog, cl) ->{ })
                         .setPositiveButton("Yes", (dialog, cl) ->{
-
                             Executor thread = Executors.newSingleThreadExecutor();
                             thread.execute( () ->{
                                 mDAO.deleteMessage(thisMessage);
-
                             });
-
                             allMessages.remove(thisMessage);
                             myAdapter.notifyItemRemoved(position);
-
                             Snackbar.make(messageText,"You deleted position #" + position,
                                     Snackbar.LENGTH_LONG).setAction("Undo",clk->{
 //                                        Executor thread = Executors.newSingleThreadExecutor();
-                                thread.execute(()->{
-                                    mDAO.insertMessage(thisMessage);
-                                });
-                                //                                allMessages.add(position, thisMessage);
-                                chatModel.messages.getValue().add(position,thisMessage);
-                                myAdapter.notifyItemInserted(position);
-                            }).show();
-                        }).create().show();
+                                        thread.execute(()->{
+                                            mDAO.insertMessage(thisMessage);
+                                         });
+        //                                allMessages.add(position, thisMessage);
+                                        chatModel.messages.getValue().add(position,thisMessage);
+                                        myAdapter.notifyItemInserted(position);
+                                 }).show();
+                        }).create().show();*/
+
+
+
 
 
 
